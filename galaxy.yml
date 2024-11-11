@@ -5,10 +5,11 @@ version: "1.1.7"
 readme: "README.md"
 authors:
     - "Wouter Stinkens (@wstinkens)"
+    - "Giorgi Zeikidze (@fizmata)"
 license_file: LICENSE
 tags:
     - cortex
     - xsoar
     - collection
-repository: "https://github.com/NVISOsecurity/cortex.xsoar"
-issues: "https://github.com/NVISOsecurity/cortex.xsoar/issues"
+repository: "https://github.com/telia-oss/cortex.xsoar"
+issues: "https://github.com/telia-oss/cortex.xsoar/issues"
