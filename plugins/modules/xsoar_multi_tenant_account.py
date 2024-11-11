@@ -64,6 +64,12 @@ options:
         required: false
         type: bool
         default: true
+    follow_redirects:
+        description: 
+          - If true, follow redirects.
+        required: false
+        type: bool
+        default: false
 
 extends_documentation_fragment:
     - cortex.xsoar.xsoar_list
@@ -116,6 +122,7 @@ class CortexXSOARAccount:
         self.base_url = module.params['url']
         self.api_key = module.params['api_key']
         self.validate_certs = module.params['validate_certs']
+        self.follow_redirects = module.params['follow_redirects']
         self.headers = {
             "Authorization": f"{self.api_key}",
             "Accept": "application/json",
@@ -131,7 +138,7 @@ class CortexXSOARAccount:
 
         url = f'{self.base_url}/{url_suffix}'
 
-        response = open_url(url, method="GET", headers=self.headers, validate_certs=self.validate_certs)
+        response = open_url(url, method="GET", headers=self.headers, validate_certs=self.validate_certs, follow_redirects=True)
         results = json.loads(response.read())
 
         host_id = None
@@ -153,7 +160,7 @@ class CortexXSOARAccount:
 
         url = f'{self.base_url}/{url_suffix}'
 
-        response = open_url(url, method="GET", headers=self.headers, validate_certs=self.validate_certs)
+        response = open_url(url, method="GET", headers=self.headers, validate_certs=self.validate_certs, follow_redirects=True)
         results = json.loads(response.read())
 
         if not results or not isinstance(results, list):
@@ -200,7 +207,7 @@ class CortexXSOARAccount:
             try:
                 if not self.module.check_mode:
                     open_url(url, method="POST", headers=self.headers, data=json_data, validate_certs=self.validate_certs,
-                             timeout=self.timeout)
+                             timeout=self.timeout, follow_redirects=True)
                 return 0, f"Account {self.name} created in Palo Alto Cortex XSOAR", ""
             except Exception as e:
                 return 1, f"Failed to create account {self.name}", f"Error creating account: {str(e)}"
@@ -218,7 +225,7 @@ class CortexXSOARAccount:
 
             try:
                 if not self.module.check_mode:
-                    open_url(url, method="POST", headers=self.headers, data=json_data, validate_certs=self.validate_certs)
+                    open_url(url, method="POST", headers=self.headers, data=json_data, validate_certs=self.validate_certs, follow_redirects=True)
                 return 0, f"Account {self.name} updated in Palo Alto Cortex XSOAR", ""
             except Exception as e:
                 return 1, f"Failed to update account {self.name}", f"Error updating account: {str(e)}"
@@ -231,7 +238,7 @@ class CortexXSOARAccount:
         try:
             if not self.module.check_mode:
                 open_url(url, method="DELETE", headers=self.headers, validate_certs=self.validate_certs,
-                         timeout=self.timeout)
+                         timeout=self.timeout, follow_redirects=True)
             return 0, f"Account {self.name} deleted in Palo Alto Cortex XSOAR", ""
         except Exception as e:
             return 1, f"Failed to delete account {self.name}", f"Error deleting account: {str(e)}"
@@ -250,6 +257,7 @@ def run_module():
             propagation_labels=dict(type='list', default=["all"]),
             account_roles=dict(type='list', default=["Administrator"]),
             validate_certs=dict(type='bool', default=True),
+            follow_redirects=dict(type='bool', default=False),
             sync_on_creation=dict(type='bool', default=True)
         ),
         supports_check_mode=True,
