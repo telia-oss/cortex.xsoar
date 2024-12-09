@@ -62,19 +62,29 @@ options:
         description: 
         required: false
         type: str
-    validate_certs: 
+    validate_certs:
         description:
           - If false, SSL certificates will not be validated.
           - This should only set to false used on personally controlled sites using self-signed certificates.
         required: false
         type: bool
         default: true
+    xsoar_engine_id:
+        description: Engine ID of the integration instance, enable the column in the GUI to see the engine ID.
+        required: false
+        type: str
+        default: ""
+    long_running:
+        description: Is the integration instance long running
+        required: false
+        type: bool
+        default: false
 
 extends_documentation_fragment:
     - cortex.xsoar.xsoar_integration
 
 author:
-    - Wouter Stinkens (@wstinkens)
+    - Giorgi Zeikidze (gio.zeikidze@gmail.com)
 '''
 
 EXAMPLES = r'''
@@ -142,6 +152,8 @@ class CortexXSOARIntegration:
         self.api_key = module.params['api_key']
         self.account = module.params['account']
         self.validate_certs = module.params['validate_certs']
+        self.long_running = module.params['long_running']
+        self.xsoar_engine_id = module.params['xsoar_engine_id']
         self.headers = {
             "Authorization": f"{self.api_key}",
             "Accept": "application/json",
@@ -188,6 +200,9 @@ class CortexXSOARIntegration:
             return False
 
         if not xsoar_integration_instance.get('brand') == self.brand:
+            return False
+        
+        if not xsoar_integration_instance.get('engine') == self.xsoar_engine_id:
             return False
 
         for k, v in self.configuration.items():
@@ -250,7 +265,9 @@ class CortexXSOARIntegration:
                 "brand": self.brand,
                 "version": 0,
                 "isIntegrationScript": True,
-                "defaultIgnore": self.default_ignore
+                "defaultIgnore": self.default_ignore,
+                "engine": self.xsoar_engine_id,
+                "isLongRunning": self.long_running
             }
 
             if self.propagation_labels:
@@ -294,7 +311,9 @@ def run_module():
             state=dict(type='str', choices=['absent', 'present'], default='present'),
             propagation_labels=dict(type='list'),
             account=dict(type='str'),
-            validate_certs=dict(type='bool', default=True)
+            validate_certs=dict(type='bool', default=True),
+            xsoar_engine_id=dict(type='str', default=""),
+            long_running=dict(type='bool', default=False)
         ),
         supports_check_mode=True
     )
