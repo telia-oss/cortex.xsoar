@@ -79,6 +79,12 @@ options:
         required: false
         type: bool
         default: false
+    follow_redirects:
+        description: 
+          - If true, follow redirects.
+        required: false
+        type: bool
+        default: false
 
 extends_documentation_fragment:
     - cortex.xsoar.xsoar_integration
@@ -152,6 +158,7 @@ class CortexXSOARIntegration:
         self.api_key = module.params['api_key']
         self.account = module.params['account']
         self.validate_certs = module.params['validate_certs']
+        self.follow_redirects = module.params['follow_redirects']
         self.long_running = module.params['long_running']
         self.xsoar_engine_id = module.params['xsoar_engine_id']
         self.headers = {
@@ -176,7 +183,7 @@ class CortexXSOARIntegration:
 
         json_data = json.dumps(data, ensure_ascii=False)
 
-        response = open_url(url, method="POST", headers=self.headers, data=json_data, validate_certs=self.validate_certs)
+        response = open_url(url, method="POST", headers=self.headers, data=json_data, validate_certs=self.validate_certs, follow_redirects=self.follow_redirects)
         results = json.loads(response.read())
 
         if not results or not isinstance(results, dict):
@@ -244,7 +251,7 @@ class CortexXSOARIntegration:
 
             try:
                 if not self.module.check_mode:
-                    open_url(url, method="PUT", headers=self.headers, data=json_data, validate_certs=self.validate_certs)
+                    open_url(url, method="PUT", headers=self.headers, data=json_data, validate_certs=self.validate_certs, follow_redirects=self.follow_redirects)
                 return 0, f"Integration instance {self.name} updated in Palo Alto Cortex XSOAR", ""
             except Exception as e:
                 return 1, f"Failed to update integration instance {self.name}", f"Error updating integration instance: {str(e)}"
@@ -277,7 +284,7 @@ class CortexXSOARIntegration:
 
             try:
                 if not self.module.check_mode:
-                    open_url(url, method="PUT", headers=self.headers, data=json_data, validate_certs=self.validate_certs)
+                    open_url(url, method="PUT", headers=self.headers, data=json_data, validate_certs=self.validate_certs, follow_redirects=self.follow_redirects)
                 return 0, f"Integration instance {self.name} created in Palo Alto Cortex XSOAR", ""
             except Exception as e:
                 return 1, f"Failed to create integration instance {self.name}", f"Error creating integration instance: {str(e)}"
@@ -292,7 +299,7 @@ class CortexXSOARIntegration:
 
         try:
             if not self.module.check_mode:
-                open_url(url, method="DELETE", headers=self.headers, validate_certs=self.validate_certs)
+                open_url(url, method="DELETE", headers=self.headers, validate_certs=self.validate_certs, follow_redirects=self.follow_redirects)
             return 0, f"Integration instance {self.name} deleted in Palo Alto Cortex XSOAR", ""
         except Exception as e:
             return 1, f"Failed to delete integration instance {self.name}", f"Error deleting integration instance: {str(e)}"
@@ -312,6 +319,7 @@ def run_module():
             propagation_labels=dict(type='list'),
             account=dict(type='str'),
             validate_certs=dict(type='bool', default=True),
+            follow_redirects=dict(type='bool', default=False),
             xsoar_engine_id=dict(type='str', default=""),
             long_running=dict(type='bool', default=False)
         ),

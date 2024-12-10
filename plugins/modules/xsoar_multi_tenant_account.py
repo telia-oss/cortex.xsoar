@@ -138,7 +138,7 @@ class CortexXSOARAccount:
 
         url = f'{self.base_url}/{url_suffix}'
 
-        response = open_url(url, method="GET", headers=self.headers, validate_certs=self.validate_certs, follow_redirects=True)
+        response = open_url(url, method="GET", headers=self.headers, validate_certs=self.validate_certs, follow_redirects=self.follow_redirects)
         results = json.loads(response.read())
 
         host_id = None
@@ -160,7 +160,7 @@ class CortexXSOARAccount:
 
         url = f'{self.base_url}/{url_suffix}'
 
-        response = open_url(url, method="GET", headers=self.headers, validate_certs=self.validate_certs, follow_redirects=True)
+        response = open_url(url, method="GET", headers=self.headers, validate_certs=self.validate_certs, follow_redirects=self.follow_redirects)
         results = json.loads(response.read())
 
         if not results or not isinstance(results, list):
@@ -207,7 +207,7 @@ class CortexXSOARAccount:
             try:
                 if not self.module.check_mode:
                     open_url(url, method="POST", headers=self.headers, data=json_data, validate_certs=self.validate_certs,
-                             timeout=self.timeout, follow_redirects=True)
+                             timeout=self.timeout, follow_redirects=self.follow_redirects)
                 return 0, f"Account {self.name} created in Palo Alto Cortex XSOAR", ""
             except Exception as e:
                 return 1, f"Failed to create account {self.name}", f"Error creating account: {str(e)}"
@@ -225,7 +225,7 @@ class CortexXSOARAccount:
 
             try:
                 if not self.module.check_mode:
-                    open_url(url, method="POST", headers=self.headers, data=json_data, validate_certs=self.validate_certs, follow_redirects=True)
+                    open_url(url, method="POST", headers=self.headers, data=json_data, validate_certs=self.validate_certs, follow_redirects=self.follow_redirects)
                 return 0, f"Account {self.name} updated in Palo Alto Cortex XSOAR", ""
             except Exception as e:
                 return 1, f"Failed to update account {self.name}", f"Error updating account: {str(e)}"
@@ -238,7 +238,7 @@ class CortexXSOARAccount:
         try:
             if not self.module.check_mode:
                 open_url(url, method="DELETE", headers=self.headers, validate_certs=self.validate_certs,
-                         timeout=self.timeout, follow_redirects=True)
+                         timeout=self.timeout, follow_redirects=self.follow_redirects)
             return 0, f"Account {self.name} deleted in Palo Alto Cortex XSOAR", ""
         except Exception as e:
             return 1, f"Failed to delete account {self.name}", f"Error deleting account: {str(e)}"
